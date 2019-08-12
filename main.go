@@ -3,15 +3,17 @@ package main
 import (
 	"fmt"
 	"log"
-	"strings"
+
+	"bggscraper/scraper"
 
 	"github.com/gocolly/colly"
 )
 
 func main() {
 
-	var topBoardGame [100]string
-	var i = 0
+	var topBoardGame map[int]scraper.BoardGame = make(map[int]scraper.BoardGame)
+
+	var i = 1
 
 	fmt.Println("Beginning")
 
@@ -35,12 +37,11 @@ func main() {
 		e.Request.Visit(e.Attr("href"))
 	})
 
-	// c.OnHTML("tr td:nth-of-type(1)", func(e *colly.HTMLElement) {
-	// 	fmt.Println("First column of a table row:", e.Text)
-	// })
-
 	c.OnHTML("tr td:nth-child(3)", func(e *colly.HTMLElement) {
-		topBoardGame[i] = strings.TrimSpace(e.Text)
+		newBoardGame := scraper.BoardGame{Rank: i}
+		newBoardGame.Name, newBoardGame.ReleaseDate = scraper.ExtractGameName(e.Text)
+
+		topBoardGame[i] = newBoardGame
 		i++
 	})
 
